@@ -33,8 +33,3 @@ class GitHandler:
             self.logger.error(f"Error while getting file content: {e}")
             raise e
         
-# if __name__ == "__main__":
-#     git_handler = GitHandler()
-#     url = "https://github.com/yashwantherukulla/regit"
-#     path = "./cloned_repos/regit"
-#     repo = git_handler.clone_repository(url, path)
