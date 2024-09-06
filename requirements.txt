@@ -1,3 +1,5 @@
 cffi==1.17.0
 pycparser==2.22
 pygit2==1.15.1
+python-magic==0.4.27
+chardet==5.2.0
