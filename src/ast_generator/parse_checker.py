@@ -10,7 +10,6 @@ def isParsable(filePath):
 
         mime = magic.Magic(mime=True)
         fileType = mime.from_file(filePath)
-        print(fileType)
         
         codeMimeTypes = ['text/x-script.python', 'text/x-python', 'text/x-c', 'text/x-c++', 'text/x-java-source', 'text/javascript', 
                          'application/javascript', 'text/x-php', 'text/x-ruby', 'text/x-perl', 'text/x-shellscript', 'text/x-scala-source', 
@@ -32,11 +31,12 @@ def isParsable(filePath):
         codeIndicators = [r'\bfunction\s+\w+\s*\(', r'\bclass\s+\w+', r'\bimport\s+\w+', r'\bpackage\s+\w+',
                           r'#include\s+[<"]', r'\bpublic\s+static\s+void\s+main', r'\bdef\s+\w+\s*\(', r'\bif\s*\(.+\)\s*{',
                           r'\bfor\s*\(.+\)\s*{', r'\bwhile\s*\(.+\)\s*{', r'^\s*#!.*python', r'^\s*#!.*node',
-                          r'^\s*#!.*ruby', r'^\s*#!.*perl', r'^\s*#!.*bash', r'<\?php',
-                          r'<\?=', r'using\s+namespace', r'^\s*@import', r'^\s*SELECT.*FROM',
-                          r'^\s*CREATE\s+TABLE', r'^\s*public\s+class', r'^\s*private\s+class', r'^\s*interface\s+\w+',
+                          r'^\s*#!.*ruby', r'^\s*#!.*perl', r'^\s*#!.*bash', r'<\?php', r'<\?=', r'using\s+namespace', r'^\s*@import', 
+                          r'^\s*SELECT.*FROM', r'^\s*CREATE\s+TABLE', r'^\s*public\s+class', r'^\s*private\s+class', r'^\s*interface\s+\w+',
                           r'\bfunc\s+\w+\(', r'\bfn\s+\w+\(', r'\blet\s+\w+\s*=', r'\bconst\s+\w+\s*=',
-                          r'\bvar\s+\w+\s*=', r'\bmodule\s+\w+']
+                          r'\bvar\s+\w+\s*=', r'\bmodule\s+\w+', r'\bdef\s+\w+\s*\(', r'\bfor\s+\w+\s+in\s+', r'\bwhile\s+.+:', 
+                          r'\bif\s+.+:', r'\belif\s+.+:', r'\belse:', r'\breturn\s+', r'\bprint\s*\(', r'\binput\s*\(', 
+                          r'=\s*input\s*\(', r'\bwith\s+.+\s+as\s+']
         
         for pattern in codeIndicators:
             if re.search(pattern, decodedContent, re.MULTILINE | re.IGNORECASE):
