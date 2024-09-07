@@ -2,13 +2,13 @@ from repo_ast import processDirectory
 import os
 
 if __name__ == "__main__":
-    clone_repo_path = './src/ast_generator/example_repos'
+    cloneRepoPath = './src/ast_generator/example_repos'
 
-    for repo_folder in os.listdir(clone_repo_path):
-        repo_path = os.path.join(clone_repo_path, repo_folder)
-        
-        if os.path.isdir(repo_path):
-            print(f"Processing repository: {repo_folder}")
-            processDirectory(repo_path)
+    for repoFolder in os.listdir(cloneRepoPath):
+        repoPath = os.path.join(cloneRepoPath, repoFolder)
+
+        if os.path.isdir(repoPath):
+            print(f"Processing repository: {repoFolder}")
+            processDirectory(repoPath)
         else:
-            print(f"Skipping non-directory item: {repo_folder}")
+            print(f"Skipping non-directory item: {repoFolder}")
