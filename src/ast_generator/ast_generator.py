@@ -1,54 +1,54 @@
 import os
-import tree_sitter 
+from tree_sitter_languages import get_language, get_parser
 
 languageExtensions = {
-    '.erl': 'Erlang',
-    '.lua': 'Lua',
-    '.el': 'Elisp',
-    'Makefile': 'Make',
-    'Dockerfile': 'Dockerfile',
-    'go.mod': 'Go Mod',
-    '.ex': 'Elixir',
-    '.elm': 'Elm',
-    '.kt': 'Kotlin',
-    '.pl': 'Perl',
-    '.md': 'Markdown',
-    '.yaml': 'YAML',
-    '.m': 'Objective-C',
-    '.sql': 'SQL',
-    '.r': 'R',
-    '.dot': 'DOT',
-    '.hack': 'Hack',
-    '.lisp': 'Common Lisp',
-    '.sh': 'Bash',
-    '.c': 'C',
-    '.cs': 'C#',
-    '.cpp': 'C++',
-    '.css': 'CSS',
-    '.et': 'Embedded Template',
-    '.go': 'Go',
-    '.hs': 'Haskell',
-    '.html': 'HTML',
-    '.java': 'Java',
-    '.js': 'JavaScript',
-    '.json': 'JSON',
-    '.jl': 'Julia',
-    '.ml': 'OCaml',
-    '.php': 'PHP',
-    '.py': 'Python',
-    '.ql': 'QL',
-    '.regex': 'Regex',
-    '.rb': 'Ruby',
-    '.rs': 'Rust',
-    '.scala': 'Scala',
-    '.sqlite': 'SQLite',
-    '.toml': 'TOML',
-    '.tsq': 'TSQ',
-    '.ts': 'TypeScript',
-    '.rst': 'reStructuredText (RST)',
-    '.hcl': 'HCL',
-    '.f90': 'Fortran',
-    '.f': 'Fixed-form Fortran'
+    'erl': 'erlang',
+    'lua': 'lua',
+    'el': 'elisp',
+    'Makefile': 'make',
+    'Dockerfile': 'dockerfile',
+    'go.mod': 'go mod',
+    'ex': 'elixir',
+    'elm': 'elm',
+    'kt': 'kotlin',
+    'pl': 'perl',
+    'md': 'markdown',
+    'yaml': 'yaml',
+    'm': 'objective-c',
+    'sql': 'sql',
+    'r': 'r',
+    'dot': 'dot',
+    'hack': 'hack',
+    'lisp': 'common lisp',
+    'sh': 'bash',
+    'c': 'c',
+    'cs': 'c#',
+    'cpp': 'c++',
+    'css': 'css',
+    'et': 'embedded template',
+    'go': 'go',
+    'hs': 'haskell',
+    'html': 'html',
+    'java': 'java',
+    'js': 'javascript',
+    'json': 'json',
+    'jl': 'julia',
+    'ml': 'ocaml',
+    'php': 'php',
+    'py': 'python',
+    'ql': 'ql',
+    'regex': 'regex',
+    'rb': 'ruby',
+    'rs': 'rust',
+    'scala': 'scala',
+    'sqlite': 'sqlite',
+    'toml': 'toml',
+    'tsq': 'tsq',
+    'ts': 'typescript',
+    'rst': 'restructuredtext (rst)',
+    'hcl': 'hcl',
+    'f90': 'fortran',
+    'f': 'fixed-form fortran'
 }
 
 def detectLanguage(filePath):
@@ -56,34 +56,22 @@ def detectLanguage(filePath):
     return languageExtensions.get(extension, 'unknown')
 
 def generateAst(filePath, language):
-    parser = tree_sitter.Parser()
+    lang = get_language(language)
+    if lang is None:
+        return None
+    
+    parser = get_parser(language)
+
     try:
-        #to do: setup the parser for the all languages above(external process)
-        lang = tree_sitter.Language(f'path/to/{language}.so', language)
-        parser.set_language(lang)
-    except Exception as e:
-        print(f"Error loading language {language}: {e}")
+        with open(filePath, 'r', encoding='utf-8') as file:
+            content = file.read()
+    except IOError as e:
+        print(f"Error reading file: {e}")
         return None
 
-    with open(filePath, 'r') as file:
-        content = file.read()
-
-    tree = parser.parse(bytes(content, 'utf8'))
-    return tree
-
-#to do: need to put the file from fetcher here
-filePath = "/content/drive/MyDrive/Colab Notebooks/csi_ml.py"
-language = detectLanguage(filePath)
-
-if language == 'unknown':
-    print(f"Unknown language for file: {filePath}")
-else:
-    print(f"Detected language: {language}")
-
-ast = generateAst(filePath, language)
-
-if ast:
-    print("AST generated successfully.")
-    print(ast.root_node.sexp())
-else:
-    print("Failed to generate AST.")
+    try:
+        tree = parser.parse(bytes(content, 'utf-8'))
+        return tree
+    except Exception as e:
+        print(f"Error parsing file: {e}")
+        return None

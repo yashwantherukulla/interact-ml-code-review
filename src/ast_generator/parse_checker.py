@@ -10,14 +10,17 @@ def isParsable(filePath):
 
         mime = magic.Magic(mime=True)
         fileType = mime.from_file(filePath)
-        
-        codeMimeTypes = ['text/x-script.python', 'text/x-python', 'text/x-c', 'text/x-c++', 'text/x-java-source', 'text/javascript', 
-                         'application/javascript', 'text/x-php', 'text/x-ruby', 'text/x-perl', 'text/x-shellscript', 'text/x-scala-source', 
-                         'text/x-go', 'text/x-rustsrc', 'text/x-haskell', 'text/x-kotlin', 'text/x-swift', 'text/x-csharp', 
-                         'text/x-typescript', 'text/x-matlab', 'application/x-executable', 'text/x-msdos-batch', 'text/x-powershell', 
-                         'text/x-lua', 'text/x-lisp', 'text/x-sql', 'text/x-r', 'text/x-fortran', 'text/x-asm', 'text/x-makefile', 
-                         'text/x-groovy', 'text/x-java']
 
+        codeMimeTypes = ['text/x-script.python', 'text/x-python', 'text/x-c', 'text/x-c++', 'text/x-java-source', 'text/javascript', 
+                          'application/javascript', 'text/x-php', 'text/x-ruby', 'text/x-perl', 'text/x-shellscript', 'text/x-scala-source', 
+                          'text/x-go', 'text/x-rustsrc', 'text/x-haskell', 'text/x-kotlin', 'text/x-swift', 'text/x-csharp', 
+                          'text/x-typescript', 'text/x-matlab', 'application/x-executable', 'text/x-msdos-batch', 'text/x-powershell', 
+                          'text/x-lua', 'text/x-lisp', 'text/x-sql', 'text/x-r', 'text/x-fortran', 'text/x-asm', 'text/x-makefile', 
+                          'text/x-groovy', 'text/x-java', 'text/x-erlang', 'text/x-elisp', 'text/x-dockerfile', 'text/x-elixir', 
+                          'text/x-elm', 'text/x-markdown', 'text/x-yaml', 'text/x-objective-c', 'text/x-graphviz', 'text/x-hack', 
+                          'text/css', 'text/x-embedded-template', 'text/html', 'application/json', 'text/x-julia', 'text/x-ocaml', 'text/plain', 
+                          'text/x-ql', 'text/x-regex', 'application/x-sqlite3', 'text/x-toml', 'text/x-tsq', 'text/x-rst', 'text/x-hcl']
+        
         if fileType not in codeMimeTypes:
             return False
 
@@ -31,17 +34,17 @@ def isParsable(filePath):
         codeIndicators = [r'\bfunction\s+\w+\s*\(', r'\bclass\s+\w+', r'\bimport\s+\w+', r'\bpackage\s+\w+',
                           r'#include\s+[<"]', r'\bpublic\s+static\s+void\s+main', r'\bdef\s+\w+\s*\(', r'\bif\s*\(.+\)\s*{',
                           r'\bfor\s*\(.+\)\s*{', r'\bwhile\s*\(.+\)\s*{', r'^\s*#!.*python', r'^\s*#!.*node',
-                          r'^\s*#!.*ruby', r'^\s*#!.*perl', r'^\s*#!.*bash', r'<\?php', r'<\?=', r'using\s+namespace', r'^\s*@import', 
+                          r'^\s*#!.*ruby', r'^\s*#!.*perl', r'^\s*#!.*bash', r'<\?php', r'<\?=', r'using\s+namespace', r'^\s*@import',
                           r'^\s*SELECT.*FROM', r'^\s*CREATE\s+TABLE', r'^\s*public\s+class', r'^\s*private\s+class', r'^\s*interface\s+\w+',
                           r'\bfunc\s+\w+\(', r'\bfn\s+\w+\(', r'\blet\s+\w+\s*=', r'\bconst\s+\w+\s*=',
-                          r'\bvar\s+\w+\s*=', r'\bmodule\s+\w+', r'\bdef\s+\w+\s*\(', r'\bfor\s+\w+\s+in\s+', r'\bwhile\s+.+:', 
-                          r'\bif\s+.+:', r'\belif\s+.+:', r'\belse:', r'\breturn\s+', r'\bprint\s*\(', r'\binput\s*\(', 
+                          r'\bvar\s+\w+\s*=', r'\bmodule\s+\w+', r'\bdef\s+\w+\s*\(', r'\bfor\s+\w+\s+in\s+', r'\bwhile\s+.+:',
+                          r'\bif\s+.+:', r'\belif\s+.+:', r'\belse:', r'\breturn\s+', r'\bprint\s*\(', r'\binput\s*\(',
                           r'=\s*input\s*\(', r'\bwith\s+.+\s+as\s+']
-        
+
         for pattern in codeIndicators:
             if re.search(pattern, decodedContent, re.MULTILINE | re.IGNORECASE):
                 return True
-        
+
         lines = decodedContent.split('\n')
         if len(lines) > 1:
             if all(',' in line for line in lines[:10]):  # Check first 10 lines for CSV
@@ -57,10 +60,3 @@ def isParsable(filePath):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return False
-
-#to do: get the files from the fetcher into here
-filePath = '/content/drive/MyDrive/Colab Notebooks/pps3output.cpp'
-if isParsable(filePath):
-    print(f"The file {filePath} likely contains parsable code.")
-else:
-    print(f"The file {filePath} does not appear to contain parsable code.")
