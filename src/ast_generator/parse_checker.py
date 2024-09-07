@@ -10,7 +10,7 @@ def isParsable(filePath):
 
         mime = magic.Magic(mime=True)
         fileType = mime.from_file(filePath)
-
+        
         codeMimeTypes = ['text/x-script.python', 'text/x-python', 'text/x-c', 'text/x-c++', 'text/x-java-source', 'text/javascript', 
                           'application/javascript', 'text/x-php', 'text/x-ruby', 'text/x-perl', 'text/x-shellscript', 'text/x-scala-source', 
                           'text/x-go', 'text/x-rustsrc', 'text/x-haskell', 'text/x-kotlin', 'text/x-swift', 'text/x-csharp', 

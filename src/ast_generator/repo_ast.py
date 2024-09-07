@@ -17,28 +17,26 @@ def process_directory(repo_path):
     os.makedirs(asts_dir, exist_ok=True)
 
     for root, dirs, files in os.walk(repo_path):
+        if root.startswith(asts_dir):
+            continue
         for file in files:
+            filePath = os.path.join(root, file)
             if isParsable(filePath):
-                filePath = os.path.join(root, file)
                 language = detectLanguage(filePath)
 
                 if language == 'unknown':
                     print(f"Unknown language for file: {filePath}")
-                else:
-                    print(f"Detected language: {language}")
+                    return None
 
                 ast = generateAst(filePath, language)
-
-                ast_dict = node_to_dict(ast)
+                ast_dict = node_to_dict(ast.root_node)
 
                 # name of file is set here
                 relative_path = os.path.relpath(filePath, repo_path)
-                ast_file_name = relative_path.replace(os.path.sep, '_') + '.txt'
+                ast_file_name = relative_path.replace(os.path.sep, '_') + '.json'
                 ast_file_path = os.path.join(asts_dir, ast_file_name)
 
-                with open(ast_file_path, 'wb') as ast_file:
+                with open(ast_file_path, 'w') as ast_file:
                     json.dump(ast_dict, ast_file, indent=2)
             else:
                 print(f"The file {filePath} does not appear to contain parsable code.")
-
-# Usage
