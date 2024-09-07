@@ -1,72 +1,71 @@
-from typing import List
-from tree_sitter import Language, Parser
-from chunk_node import ChunkNode
-from tree_sitter_languages import get_language
-import os
+import json
+from typing import Dict, List, Optional
+from tree_sitter import Node
+from models import ChunkNode, ChunkGraph, ChunkType
 
 class ChunkExtractor:
-    def __init__(self, language: Language):
-        self.parser = Parser()
-        self.language = language
-        self.parser.set_language(self.language)
+    def __init__(self, ast_lookup_path: str):
+        with open(ast_lookup_path, 'r') as f:
+            self.ast_lookup = json.load(f)
 
-    def extract_chunks(self, file_path: str) -> List[ChunkNode]:
-        with open(file_path, 'r') as f:
-            content = f.read()
+    def extract_chunks(self, file_path: str) -> ChunkGraph:
+        ast_file_path = self.ast_lookup[file_path]
+        with open(ast_file_path, 'r') as f:
+            ast = json.load(f)
 
-        parser = Parser()
-        parser.set_language(self.language)
-        tree = parser.parse(bytes(content, 'utf8'))
+        graph = ChunkGraph()
+        self._process_node(ast, file_path, graph)
+        return graph
 
-        chunks = []
-        root_chunk = ChunkNode(
-            id=f"file_{os.path.basename(file_path)}",
-            type='file',
-            content=content,
-            start_line=0,
-            end_line=len(content.splitlines()),
-            parent=None
-        )
-        chunks.append(root_chunk)
-        self._traverse_tree(tree.root_node, root_chunk, chunks, content)
-        return chunks
-
-    def _traverse_tree(self, node, parent, chunks, content):
-        if node.type in ['function_definition', 'class_definition']:
-            node_name = self._get_node_name(node)
-            parent_name = parent.id if parent else "root"
-            chunk_id = f"{parent_name}_{node_name}_{node.start_point[0]}_{node.end_point[0]}"
+    def _process_node(self, node: Dict, file_path: str, graph: ChunkGraph, parent: ChunkNode = None) -> ChunkNode:
+        chunk_type = self._get_chunk_type(node)
+        if chunk_type:
             chunk = ChunkNode(
-                id=chunk_id,
-                type='function' if node.type == 'function_definition' else 'class',
-                content=content[node.start_byte:node.end_byte],
-                start_line=node.start_point[0],
-                end_line=node.end_point[0],
-                parent=parent
+                id=f"{file_path}:{node['start_point'][0]}:{node['end_point'][0]}",
+                type=chunk_type,
+                name=self._get_node_name(node),
+                file_path=file_path,
+                start_line=node['start_point'][0],
+                end_line=node['end_point'][0],
+                content=self._get_node_content(file_path, node),
+                ast_node=node,
+                parent=parent,
+                imports=self._extract_imports(node) if chunk_type == ChunkType.FILE else []
             )
+            graph.add_node(chunk)
+            if parent:
+                graph.add_edge(parent.id, chunk.id)
 
-            chunks.append(chunk)
-            parent = chunk
+            for child in node.get('children', []):
+                self._process_node(child, file_path, graph, chunk)
 
-        for child in node.children:
-            self._traverse_tree(child, parent, chunks, content)
+            return chunk
 
-    def _get_node_name(self, node):
-        for child in node.children:
-            if child.type == 'identifier':
-                return child.text.decode('utf-8')
-        return "Unknown"
+    def _get_chunk_type(self, node: Dict) -> Optional[ChunkType]:
+        type_mapping = {
+            'module': ChunkType.FILE,
+            'class_definition': ChunkType.CLASS,
+            'function_definition': ChunkType.FUNCTION,
+        }
+        return type_mapping.get(node['type'])
 
-if __name__ == '__main__':
-    language = get_language('python')
-    chunk_extractor = ChunkExtractor(language)
-    chunks = chunk_extractor.extract_chunks('./src/chunker/test.py')
-    print(f"Extracted {len(chunks)} chunks:")
+    def _get_node_name(self, node: Dict) -> str:
+        if node['type'] in ['class_definition', 'function_definition']:
+            for child in node['children']:
+                if child['type'] == 'identifier':
+                    return child['content']
+        return node['type']
 
-    output_dir = './src/chunker/chunks'
-    os.makedirs(output_dir, exist_ok=True)
-    
-    for chunk in chunks:
-        with open(f'./src/chunker/chunks/{chunk.id}.txt', 'w') as f:
-            f.write(chunk.content)
-        print(chunk)
+    def _get_node_content(self, file_path: str, node: Dict) -> str:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        return ''.join(lines[node['start_point'][0]:node['end_point'][0]+1])
+
+    def _extract_imports(self, node: Dict) -> List[str]:
+        imports = []
+        for child in node.get('children', []):
+            if child['type'] == 'import_statement':
+                imports.append(child['content'])
+            elif child['type'] == 'import_from_statement':
+                imports.append(f"from {child['children'][1]['content']} import ...")
+        return imports
