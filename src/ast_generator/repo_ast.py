@@ -17,13 +17,14 @@ def processDirectory(repoPath):
     os.makedirs(astsDir, exist_ok=True)
 
     fileAstMap = {}
-
+    fileAstMapExists = 0
     for root, dirs, files in os.walk(repoPath):
         if root.startswith(astsDir):
             continue
 
         for file in files:
             if file == "fileAstMap.json":
+                fileAstMapExists += 1
                 continue
 
             filePath = os.path.join(root, file)
@@ -41,7 +42,9 @@ def processDirectory(repoPath):
             with open(astFilePath, 'w') as astFile:
                 json.dump(astDict, astFile, indent=2)
             
-            fileAstMap[filePath] = astFilePath
-
-    with open(mappingFilePath, 'w') as mapFile:
-        json.dump(fileAstMap, mapFile, indent=2)
+            if(fileAstMapExists == 0):
+                fileAstMap[filePath] = astFilePath
+            
+    if(fileAstMapExists == 0):
+        with open(mappingFilePath, 'w') as mapFile:
+            json.dump(fileAstMap, mapFile, indent=2)
