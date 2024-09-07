@@ -1,5 +1,5 @@
 import os
-from ast_generator import generateAst, detectLanguage
+from .ast_generator import generateAst, detectLanguage
 import json
 
 def nodeToDict(node):

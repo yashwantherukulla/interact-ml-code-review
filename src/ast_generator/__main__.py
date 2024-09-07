@@ -2,7 +2,7 @@ from repo_ast import processDirectory
 import os
 
 if __name__ == "__main__":
-    cloneRepoPath = './src/ast_generator/example_repos'
+    cloneRepoPath = './cloned_repos'
 
     for repoFolder in os.listdir(cloneRepoPath):
         repoPath = os.path.join(cloneRepoPath, repoFolder)

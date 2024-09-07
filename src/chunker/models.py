@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 from enum import Enum
+import networkx as nx
+import matplotlib.pyplot as plt
 
 class ChunkType(Enum):
     FILE = "file"
@@ -44,3 +46,26 @@ class ChunkGraph:
         related = self.nodes[related_id]
         if related not in node.related_chunks:
             node.related_chunks.append(related)
+
+    def visualize_graph(self):
+        G = nx.DiGraph()
+
+        for node in self.nodes:
+            G.add_node(node.id, lable=node.name, type=node.type)
+            for child_id in self.edges.get(node.id, []):
+                G.add_edge(node.id, child_id)
+        
+        pos = nx.spring_layout(G)
+        labels = {node.id: node.name for node in self.nodes}
+        node_colors = [self._get_node_color(node.type) for node in self.nodes]
+
+        nx.draw(G, pos, labels=labels, node_colors=node_colors, with_labels=True, node_size=3000, font_size=10, font_color='white')
+        plt.show()
+
+    def _get_node_color(self, node_type: ChunkType) -> str:
+        color_mapping = {
+            ChunkType.FILE: 'blue',
+            ChunkType.CLASS: 'green',
+            ChunkType.FUNCTION: 'red',
+        }
+        return color_mapping.get(node_type, 'black')

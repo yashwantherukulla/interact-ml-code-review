@@ -1,7 +1,8 @@
 import json
 from typing import Dict, List, Optional
 from tree_sitter import Node
-from models import ChunkNode, ChunkGraph, ChunkType
+from .models import ChunkNode, ChunkGraph, ChunkType
+from src.ast_generator.repo_ast import processDirectory
 
 class ChunkExtractor:
     def __init__(self, ast_lookup_path: str):
@@ -69,3 +70,10 @@ class ChunkExtractor:
             elif child['type'] == 'import_from_statement':
                 imports.append(f"from {child['children'][1]['content']} import ...")
         return imports
+    
+if __name__ == '__main__':
+    repoPath = './cloned_repos/regit'
+    processDirectory(repoPath)
+    extractor = ChunkExtractor(ast_lookup_path=repoPath + '/fileAstMap.json')
+    graph = extractor.extract_chunks('src/chunker/chunk_extractor.py')
+    graph.visualize_graph()
