@@ -17,16 +17,27 @@ class ChunkExtractor:
         parser = Parser()
         parser.set_language(self.language)
         tree = parser.parse(bytes(content, 'utf8'))
-        # tree = generateAst(file_path, self.language)
 
         chunks = []
-        self._traverse_tree(tree.root_node, None, chunks, content)
+        root_chunk = ChunkNode(
+            id=f"file_{os.path.basename(file_path)}",
+            type='file',
+            content=content,
+            start_line=0,
+            end_line=len(content.splitlines()),
+            parent=None
+        )
+        chunks.append(root_chunk)
+        self._traverse_tree(tree.root_node, root_chunk, chunks, content)
         return chunks
 
     def _traverse_tree(self, node, parent, chunks, content):
         if node.type in ['function_definition', 'class_definition']:
+            node_name = self._get_node_name(node)
+            parent_name = parent.id if parent else "root"
+            chunk_id = f"{parent_name}_{node_name}_{node.start_point[0]}_{node.end_point[0]}"
             chunk = ChunkNode(
-                id=f"{node.type}_{node.start_point[0]}_{node.end_point[0]}",
+                id=chunk_id,
                 type='function' if node.type == 'function_definition' else 'class',
                 content=content[node.start_byte:node.end_byte],
                 start_line=node.start_point[0],
@@ -47,15 +58,15 @@ class ChunkExtractor:
         return "Unknown"
 
 if __name__ == '__main__':
-    language = get_language('go')
+    language = get_language('python')
     chunk_extractor = ChunkExtractor(language)
-    chunks = chunk_extractor.extract_chunks('./cloned_repos/regit/main.go')
+    chunks = chunk_extractor.extract_chunks('./src/chunker/test.py')
     print(f"Extracted {len(chunks)} chunks:")
 
     output_dir = './src/chunker/chunks'
     os.makedirs(output_dir, exist_ok=True)
     
     for chunk in chunks:
-        with open(f'./src/chunker/chunks/{chunk.id}.{language.name}', 'w') as f:
+        with open(f'./src/chunker/chunks/{chunk.id}.txt', 'w') as f:
             f.write(chunk.content)
-        print(chunk)    
+        print(chunk)
