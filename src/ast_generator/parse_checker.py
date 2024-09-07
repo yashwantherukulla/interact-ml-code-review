@@ -57,10 +57,3 @@ def isParsable(filePath):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return False
-
-#to do: get the files from the fetcher into here
-filePath = '/content/drive/MyDrive/Colab Notebooks/pps3output.cpp'
-if isParsable(filePath):
-    print(f"The file {filePath} likely contains parsable code.")
-else:
-    print(f"The file {filePath} does not appear to contain parsable code.")
