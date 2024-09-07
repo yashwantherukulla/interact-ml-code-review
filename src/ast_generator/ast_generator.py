@@ -62,8 +62,16 @@ def generateAst(filePath, language):
     
     parser = get_parser(language)
 
-    with open(filePath, 'r') as file:
-        content = file.read()
+    try:
+        with open(filePath, 'r', encoding='utf-8') as file:
+            content = file.read()
+    except IOError as e:
+        print(f"Error reading file: {e}")
+        return None
 
-    tree = parser.parse(bytes(content, 'utf8'))
-    return tree
+    try:
+        tree = parser.parse(bytes(content, 'utf-8'))
+        return tree
+    except Exception as e:
+        print(f"Error parsing file: {e}")
+        return None

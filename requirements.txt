@@ -3,5 +3,5 @@ pycparser==2.22
 pygit2==1.15.1
 python-magic==0.4.27
 chardet==5.2.0
-tree_sitter==0.23.0
+tree_sitter==0.21.3
 tree_sitter_languages==1.10.2
