@@ -10,7 +10,7 @@ class RepositoryManager:
         self.logger = logging.getLogger(__name__)
         self.git_handler = git_handler
         self.repos: Dict[str, str] = {} #url, path
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(__name__) #why is there self.logger twice here?
 
     def clone_repository(self, url: str, base_path: str) -> str:
         repo_name = url.split("/")[-1].replace(".git", "")

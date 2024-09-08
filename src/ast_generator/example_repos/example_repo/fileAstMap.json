@@ -1,3 +1,0 @@
-{
-  "./src/ast_generator/example_repos/example_repo/example_code1.java": "./src/ast_generator/example_repos/example_repo/asts/example_code1.java.json"
-}

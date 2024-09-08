@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict, List, Optional, Tuple
 from .models import ChunkNode, ChunkGraph, ChunkType
-from src.ast_generator.repo_ast import processDirectory
+from src.ast_generator.repo_ast import RepoAst
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -144,10 +144,8 @@ class ChunkExtractor:
         return ''.join(immediate_code_lines), ranges
 
 if __name__ == '__main__':
-    repoPath = './cloned_repos/techBarista'
-    extractor = ChunkExtractor(repoPath)
-    graph = extractor.extract_chunks(os.path.join(repoPath, 'backend/main.py'))
-    if graph:
-        graph.export_to_json("./cloned_repos/techBarista/asts/chunks.json")
-    else:
-        logger.error("Failed to extract chunks")
+    repoPath = './cloned_repos/regit'
+    processDirectory(repoPath)
+    extractor = ChunkExtractor(ast_lookup_path=repoPath + '/fileAstMap.json')
+    graph = extractor.extract_chunks('src/chunker/chunk_extractor.py')
+    graph.visualize_graph()

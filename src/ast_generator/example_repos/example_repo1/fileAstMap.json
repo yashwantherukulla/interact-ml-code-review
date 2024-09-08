@@ -1,4 +1,0 @@
-{
-  "./src/ast_generator/example_repos/example_repo1/example_code2.go": "./src/ast_generator/example_repos/example_repo1/asts/example_code2.go.json",
-  "./src/ast_generator/example_repos/example_repo1/example_code.py": "./src/ast_generator/example_repos/example_repo1/asts/example_code.py.json"
-}
