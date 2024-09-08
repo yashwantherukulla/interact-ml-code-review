@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class ChunkExtractor:
     def __init__(self, repo_path: str):
         self.repo_path = repo_path
-        self.ast_lookup_path = processDirectory(repo_path)
+        self.ast_lookup_path = RepoAst.processDirectory(repo_path)
         try:
             with open(self.ast_lookup_path, 'r') as f:
                 self.ast_lookup = json.load(f)
@@ -144,8 +144,10 @@ class ChunkExtractor:
         return ''.join(immediate_code_lines), ranges
 
 if __name__ == '__main__':
-    repoPath = './cloned_repos/regit'
-    processDirectory(repoPath)
-    extractor = ChunkExtractor(ast_lookup_path=repoPath + '/fileAstMap.json')
-    graph = extractor.extract_chunks('src/chunker/chunk_extractor.py')
-    graph.visualize_graph()
+    repoPath = './cloned_repos/techBarista'
+    extractor = ChunkExtractor(repoPath)
+    graph = extractor.extract_chunks(os.path.join(repoPath, 'backend/main.py'))
+    if graph:
+        graph.export_to_json("./cloned_repos/techBarista/asts/chunks.json")
+    else:
+        logger.error("Failed to extract chunks")
