@@ -33,11 +33,11 @@ class RepoAst:
                 if language == 'unknown':
                     self.logger.info(f"Skipping file with unknown language: {filePath}")
                     continue
-
-                ast = self.ast_generator.generateAst(filePath, language)
-                if ast is None:
-                    self.logger.info(f"Failed to generate AST for file: {filePath}")
-                    continue
+                else:
+                    ast = self.ast_generator.generateAst(filePath, language)
+                    if ast is None:
+                        self.logger.info(f"Failed to generate AST for file: {filePath}")
+                        continue
 
                 astDict = self.nodeToDict(ast.root_node)
 

@@ -73,7 +73,6 @@ class ChunkGraph:
             return {
                 'id': node.id,
                 'type': node.type.value,
-                # 'name': node.name,
                 'file_path': node.file_path,
                 'start_line': node.start_line,
                 'end_line': node.end_line,

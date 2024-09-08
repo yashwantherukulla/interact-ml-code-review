@@ -22,7 +22,7 @@ class ChunkExtractor:
             logger.error(f"AST lookup file not found: {self.ast_lookup_path}")
             raise
 
-    def extract_chunks(self, file_path: str) -> Optional[ChunkGraph]:
+    def extract_file_chunks(self, file_path: str) -> Optional[ChunkGraph]:
         if file_path not in self.ast_lookup:
             logger.warning(f"No AST found for file: {file_path}")
             return None
@@ -42,7 +42,7 @@ class ChunkExtractor:
         self._process_node(ast, file_path, graph)
         return graph
 
-    def _process_node(self, node: Dict, file_path: str, graph: ChunkGraph, parent: ChunkNode = None) -> Optional[ChunkNode]:
+    def _process_node(self, node: Dict, file_path: str, graph: ChunkGraph, parent: Optional[ChunkNode] = None) -> Optional[ChunkNode]:
         chunk_type = self._get_chunk_type(node)
         if chunk_type:
             try:
@@ -53,24 +53,26 @@ class ChunkExtractor:
                     start_line=node['start_point'][0],
                     end_line=node['end_point'][0],
                     content=self._get_node_content(file_path, node),
-                    ast_node=node,
-                    parent=parent,
-                    imports=self._extract_imports(file_path, node) if chunk_type == ChunkType.FILE else []
+                    ast_node=node
                 )
                 graph.add_node(chunk)
                 if parent:
                     graph.add_edge(parent.id, chunk.id)
 
                 if chunk_type == ChunkType.FILE:
+                    chunk.imports = self._extract_imports(file_path, node)
                     self._extract_immediate_file_code(node, file_path, graph, chunk)
 
                 for child in node.get('children', []):
-                    self._process_node(child, file_path, graph, chunk)
+                    child_chunk = self._process_node(child, file_path, graph, chunk)
+                    if child_chunk:
+                        chunk.children.append(child_chunk)
 
                 return chunk
             except KeyError as e:
                 logger.error(f"Missing key in node: {e}")
                 return None
+        return None
 
     def _get_chunk_type(self, node: Dict) -> Optional[ChunkType]:
         type_mapping = {
@@ -117,12 +119,11 @@ class ChunkExtractor:
                 start_line=start,
                 end_line=end,
                 content=self._get_node_content(file_path, {'start_point': [start, 0], 'end_point': [end, 0]}),
-                ast_node=node,
-                parent=parent,
-                imports=[]
+                ast_node=node
             )
             graph.add_node(immediate_chunk)
             graph.add_edge(parent.id, immediate_chunk.id)
+            parent.children.append(immediate_chunk)
 
     def _get_immediate_file_code(self, node: Dict, file_path: str) -> List[Tuple[int, int]]:
         ranges = []
@@ -138,12 +139,31 @@ class ChunkExtractor:
             ranges.append((current_line, node['end_point'][0]))
 
         return ranges
+    
+    def extract_chunks(self, export_to_json=True):
+        chunk_graphs = {}
+        chunkGraphMap = {}  # {file_path: chunk_path}
+        for file_path in self.ast_lookup.keys():
+            graph = self.extract_file_chunks(file_path)
+            if graph:
+                chunk_graphs[file_path] = graph
+                relative_path = os.path.relpath(file_path, self.repo_path)
+                output_path = os.path.join(self.repo_path, "asts", relative_path.replace(os.path.sep, '_') + '-CHUNKS.json')
+                chunkGraphMap[file_path] = output_path
+        
+        if export_to_json:
+            os.makedirs(os.path.join(self.repo_path, "asts"), exist_ok=True)
+            for file_path, graph in chunk_graphs.items():
+                relative_path = os.path.relpath(file_path, self.repo_path)
+                output_path = os.path.join(self.repo_path, "asts", relative_path.replace(os.path.sep, '_') + '-CHUNKS.json')
+                graph.export_to_json(output_path)
+
+            with open(os.path.join(self.repo_path, 'asts', 'chunkGraphMap.json'), 'w') as f:
+                json.dump(chunkGraphMap, f, indent=2)
+
+        return chunk_graphs
 
 if __name__ == '__main__':
-    repoPath = './cloned_repos/techBarista'
-    extractor = ChunkExtractor(repoPath)
-    graph = extractor.extract_chunks(os.path.join(repoPath, 'backend/main.py'))
-    if graph:
-        graph.export_to_json("./cloned_repos/techBarista/asts/chunks.json")
-    else:
-        logger.error("Failed to extract chunks")
+    repo_path = './cloned_repos/techBarista'
+    extractor = ChunkExtractor(repo_path)
+    chunk_graphs = extractor.extract_chunks()  # outputs to ./cloned_repos/techBarista/asts
