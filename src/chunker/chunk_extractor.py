@@ -108,16 +108,15 @@ class ChunkExtractor:
         return imports
 
     def _extract_immediate_file_code(self, node: Dict, file_path: str, graph: ChunkGraph, parent: ChunkNode):
-        immediate_code, ranges = self._get_immediate_file_code(node, file_path)
-        if immediate_code.strip():
-            name = "_".join([f"({start}_{end})" for start, end in ranges])
+        immediate_code_ranges = self._get_immediate_file_code(node, file_path)
+        for start, end in immediate_code_ranges:
             immediate_chunk = ChunkNode(
-                id=f"{file_path}:immediate:{name}",
+                id=f"{file_path}:immediate:{start}_{end}",
                 type=ChunkType.IMMEDIATE_CODE,
                 file_path=file_path,
-                start_line=ranges[0][0],
-                end_line=ranges[-1][1],
-                content=immediate_code,
+                start_line=start,
+                end_line=end,
+                content=self._get_node_content(file_path, {'start_point': [start, 0], 'end_point': [end, 0]}),
                 ast_node=node,
                 parent=parent,
                 imports=[]
@@ -125,26 +124,20 @@ class ChunkExtractor:
             graph.add_node(immediate_chunk)
             graph.add_edge(parent.id, immediate_chunk.id)
 
-    def _get_immediate_file_code(self, node: Dict, file_path: str) -> Tuple[str, List[Tuple[int, int]]]:
-        with open(file_path, 'r') as f:
-            lines = f.readlines()
-
-        immediate_code_lines = []
+    def _get_immediate_file_code(self, node: Dict, file_path: str) -> List[Tuple[int, int]]:
         ranges = []
         current_line = node['start_point'][0]
 
         for child in node.get('children', []):
             if child['type'] in ['function_definition', 'class_definition']:
                 if current_line < child['start_point'][0]:
-                    immediate_code_lines.extend(lines[current_line:child['start_point'][0]])
                     ranges.append((current_line, child['start_point'][0] - 1))
                 current_line = child['end_point'][0] + 1
 
         if current_line < node['end_point'][0] + 1:
-            immediate_code_lines.extend(lines[current_line:node['end_point'][0]+1])
             ranges.append((current_line, node['end_point'][0]))
 
-        return ''.join(immediate_code_lines), ranges
+        return ranges
 
 if __name__ == '__main__':
     repoPath = './cloned_repos/techBarista'
