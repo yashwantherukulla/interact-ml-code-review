@@ -1,8 +1,0 @@
-def node_to_dict(node):
-    result = {
-        "type": node.type,
-        "start_point": node.start_point,
-        "end_point": node.end_point,
-        "children": [node_to_dict(child) for child in node.children]
-    }
-    return result
