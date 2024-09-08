@@ -10,7 +10,7 @@ if __name__ == "__main__":
     repo_ast = RepoAst(ast_generator)
     for repoFolder in os.listdir(cloneRepoPath):
         repoPath = os.path.join(cloneRepoPath, repoFolder)
-
+        
         if os.path.isdir(repoPath):
             logger.info(f"Processing repository: {repoFolder}")
             repo_ast.processDirectory(repoPath)

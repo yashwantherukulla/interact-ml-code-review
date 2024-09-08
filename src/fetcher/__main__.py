@@ -9,7 +9,7 @@ def fetch_repository(url: str, base_path: str) -> str:
 
 
 if __name__ == "__main__":
-    url = "https://github.com/devHarshShah/techBarista"
+    url = "https://github.com/woaitsAryan/regit"
     base_path = "./cloned_repos"
     
     git_handler = GitHandler()
