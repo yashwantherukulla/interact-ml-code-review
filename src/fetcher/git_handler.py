@@ -1,30 +1,40 @@
 import pygit2
 from typing import List
 import logging
+import os
+import shutil
+from git import Repo
 
 class GitHandler:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-    
-    def clone_repository(self, url: str, path: str) -> pygit2.Repository:
-        try:
-            if pygit2.Repository(path):
-                self.logger.info(f"Repository already exists at path: {path}")
-                return pygit2.Repository(path)
+   
+    def clone_repository(self, url: str, path: str) -> None:
+        # try:
+        #     if os.path.exists(path):
+        #         if os.path.exists(os.path.join(path, '.git')):
+        #             self.logger.info(f"Repository already exists at path: {path}")
+        #             # return pygit2.Repository(path)
+        #         else:
+        #             self.logger.warning(f"Directory exists but is not a Git repository: {path}")
+        #             shutil.rmtree(path)
             
-            repo = pygit2.clone_repository(url, path)
-            return repo
-        except pygit2.GitError as e:
-            self.logger.error(f"Error while cloning repository: {e}")
-            raise e
-        
+        #     self.logger.info(f"Cloning repository to: {path}")
+        #     pygit2.clone_repository(url, path)
+            
+        # except pygit2.GitError as e:
+        #     self.logger.error(f"Error while cloning repository: {e}")
+        #     raise e
+        Repo.clone_from(url, path)
+
+       
     def get_latest_commit(self, repo: pygit2.Repository) -> pygit2.Commit:
         try:
             return repo.head.peel(pygit2.Commit)
         except pygit2.GitError as e:
             self.logger.error(f"Error while getting latest commit: {e}")
             raise e
-        
+       
     def get_file_content(self, repo: pygit2.Repository, file_path: str) -> str:
         try:
             file = repo[file_path]
@@ -32,4 +42,3 @@ class GitHandler:
         except pygit2.GitError as e:
             self.logger.error(f"Error while getting file content: {e}")
             raise e
-        

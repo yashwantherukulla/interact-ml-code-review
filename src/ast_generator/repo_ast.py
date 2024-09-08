@@ -1,6 +1,6 @@
 import os
-from .ast_generator import generateAst, detectLanguage
 import json
+from .ast_generator import generateAst, detectLanguage
 
 def nodeToDict(node):
     result = {
@@ -13,26 +13,26 @@ def nodeToDict(node):
 
 def processDirectory(repoPath):
     astsDir = os.path.join(repoPath, 'asts')
-    mappingFilePath = os.path.join(repoPath, 'fileAstMap.json')
+    mappingFilePath = os.path.join(astsDir, 'fileAstMap.json')
     os.makedirs(astsDir, exist_ok=True)
 
     fileAstMap = {}
-    fileAstMapExists = 0
     for root, dirs, files in os.walk(repoPath):
         if root.startswith(astsDir):
             continue
 
         for file in files:
-            if file == "fileAstMap.json":
-                fileAstMapExists += 1
-                continue
-
             filePath = os.path.join(root, file)
             language = detectLanguage(filePath)
             if language == 'unknown':
-                print(f"Unknown language for file: {filePath}")
-                return None
+                print(f"Skipping file with unknown language: {filePath}")
+                continue
+
             ast = generateAst(filePath, language)
+            if ast is None:
+                print(f"Failed to generate AST for file: {filePath}")
+                continue
+
             astDict = nodeToDict(ast.root_node)
 
             relative_path = os.path.relpath(filePath, repoPath)
@@ -42,9 +42,9 @@ def processDirectory(repoPath):
             with open(astFilePath, 'w') as astFile:
                 json.dump(astDict, astFile, indent=2)
             
-            if(fileAstMapExists == 0):
-                fileAstMap[filePath] = astFilePath
-            
-    if(fileAstMapExists == 0):
-        with open(mappingFilePath, 'w') as mapFile:
-            json.dump(fileAstMap, mapFile, indent=2)
+            fileAstMap[filePath] = astFilePath
+    
+    with open(mappingFilePath, 'w') as mapFile:
+        json.dump(fileAstMap, mapFile, indent=2)
+
+    return mappingFilePath

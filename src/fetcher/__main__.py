@@ -9,10 +9,10 @@ def fetch_repository(url: str, base_path: str) -> str:
 
 
 if __name__ == "__main__":
-    url = "https://github.com/yashwantherukulla/regit"
+    url = "https://github.com/devHarshShah/techBarista"
     base_path = "./cloned_repos"
     
     git_handler = GitHandler()
     repo_manager = RepositoryManager(git_handler)
-    repo_manager.complete_cleanup()
     fetch_repository(url, base_path)
+    # repo_manager.complete_cleanup()

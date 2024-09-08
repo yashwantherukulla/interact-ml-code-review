@@ -1,20 +1,20 @@
+#models.py
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 from enum import Enum
-import networkx as nx
-import matplotlib.pyplot as plt
 
 class ChunkType(Enum):
     FILE = "file"
     CLASS = "class"
     FUNCTION = "function"
     METHOD = "method"
+    IMMEDIATE_CODE = "immediate_code"
 
 @dataclass
 class ChunkNode:
     id: str
     type: ChunkType
-    name: str
+    # name: str
     file_path: str
     start_line: int
     end_line: int
@@ -47,25 +47,42 @@ class ChunkGraph:
         if related not in node.related_chunks:
             node.related_chunks.append(related)
 
-    def visualize_graph(self):
-        G = nx.DiGraph()
-
-        for node in self.nodes:
-            G.add_node(node.id, lable=node.name, type=node.type)
-            for child_id in self.edges.get(node.id, []):
-                G.add_edge(node.id, child_id)
-        
-        pos = nx.spring_layout(G)
-        labels = {node.id: node.name for node in self.nodes}
-        node_colors = [self._get_node_color(node.type) for node in self.nodes]
-
-        nx.draw(G, pos, labels=labels, node_colors=node_colors, with_labels=True, node_size=3000, font_size=10, font_color='white')
-        plt.show()
-
-    def _get_node_color(self, node_type: ChunkType) -> str:
-        color_mapping = {
-            ChunkType.FILE: 'blue',
-            ChunkType.CLASS: 'green',
-            ChunkType.FUNCTION: 'red',
+    def generate_summary(self):
+        summary = {
+            'total_nodes': len(self.nodes),
+            'node_types': {chunk_type.value: 0 for chunk_type in ChunkType},
+            'avg_children': sum(len(node.children) for node in self.nodes.values()) / len(self.nodes) if self.nodes else 0,
+            'max_depth': self._get_max_depth(),
+            # 'most_related': max((len(node.related_chunks), node.name) for node in self.nodes.values()) if self.nodes else (0, None)
         }
-        return color_mapping.get(node_type, 'black')
+        for node in self.nodes.values():
+            summary['node_types'][node.type.value] += 1
+        return summary
+
+    def _get_max_depth(self):
+        def depth(node):
+            if not node.children:
+                return 1
+            return 1 + max(depth(child) for child in node.children)
+        return depth(self.root) if self.root else 0
+
+    def export_to_json(self, file_path: str):
+        import json
+
+        def node_to_dict(node):
+            return {
+                'id': node.id,
+                'type': node.type.value,
+                # 'name': node.name,
+                'file_path': node.file_path,
+                'start_line': node.start_line,
+                'end_line': node.end_line,
+                'children': [child.id for child in node.children],
+                'related_chunks': [related.id for related in node.related_chunks],
+                'imports': node.imports
+            }
+
+        graph_dict = {node_id: node_to_dict(node) for node_id, node in self.nodes.items()}
+
+        with open(file_path, 'w') as f:
+            json.dump(graph_dict, f, indent=2)
