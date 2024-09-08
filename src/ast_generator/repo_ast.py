@@ -17,9 +17,9 @@ class RepoAst:
         }
         return result
 
-    def processDirectory(repoPath):
+    def processDirectory(self, repoPath):
         astsDir = os.path.join(repoPath, 'asts')
-        mappingFilePath = os.path.join(astsDir, 'fileAstMap.json')
+        mappingFilePath = os.path.join(repoPath, 'fileAstMap.json')
         os.makedirs(astsDir, exist_ok=True)
 
         fileAstMap = {}
@@ -29,28 +29,26 @@ class RepoAst:
 
             for file in files:
                 filePath = os.path.join(root, file)
-                language = AstGenerator.detectLanguage(filePath)
+                language = self.ast_generator.detectLanguage(filePath)
                 if language == 'unknown':
-                    print(f"Skipping file with unknown language: {filePath}")
+                    self.logger.info(f"Skipping file with unknown language: {filePath}")
                     continue
 
-                ast = AstGenerator.generateAst(filePath, language)
+                ast = self.ast_generator.generateAst(filePath, language)
                 if ast is None:
-                    print(f"Failed to generate AST for file: {filePath}")
+                    self.logger.info(f"Failed to generate AST for file: {filePath}")
                     continue
 
-                astDict = AstGenerator.nodeToDict(ast.root_node)
+                astDict = self.nodeToDict(ast.root_node)
 
                 relative_path = os.path.relpath(filePath, repoPath)
                 astFileName = relative_path.replace(os.path.sep, '_') + '.json'
                 astFilePath = os.path.join(astsDir, astFileName)
 
-            with open(astFilePath, 'w') as astFile:
-                json.dump(astDict, astFile, indent=2)
-            
+                with open(astFilePath, 'w') as astFile:
+                    json.dump(astDict, astFile, indent=2)
+                
                 fileAstMap[filePath] = astFilePath
         
         with open(mappingFilePath, 'w') as mapFile:
             json.dump(fileAstMap, mapFile, indent=2)
-
-        return mappingFilePath
