@@ -3,6 +3,7 @@ import os
 from typing import Dict, List, Optional, Tuple
 from .models import ChunkNode, ChunkGraph, ChunkType
 from src.ast_generator.repo_ast import RepoAst
+from src.ast_generator.ast_generator import AstGenerator
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -11,7 +12,9 @@ logger = logging.getLogger(__name__)
 class ChunkExtractor:
     def __init__(self, repo_path: str):
         self.repo_path = repo_path
-        self.ast_lookup_path = RepoAst.processDirectory(repo_path)
+        ast_generator = AstGenerator()
+        repo_ast = RepoAst(ast_generator)
+        self.ast_lookup_path = repo_ast.processDirectory(repo_path)
         try:
             with open(self.ast_lookup_path, 'r') as f:
                 self.ast_lookup = json.load(f)

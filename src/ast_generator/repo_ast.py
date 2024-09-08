@@ -17,9 +17,9 @@ class RepoAst:
         }
         return result
 
-    def processDirectory(self, repoPath):
+    def processDirectory(self, repoPath) -> str:
         astsDir = os.path.join(repoPath, 'asts')
-        mappingFilePath = os.path.join(repoPath, 'fileAstMap.json')
+        mappingFilePath = os.path.join(astsDir, 'fileAstMap.json')
         os.makedirs(astsDir, exist_ok=True)
 
         fileAstMap = {}
@@ -52,3 +52,5 @@ class RepoAst:
         
         with open(mappingFilePath, 'w') as mapFile:
             json.dump(fileAstMap, mapFile, indent=2)
+
+        return mappingFilePath

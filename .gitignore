@@ -1,3 +1,7 @@
 venv
 cloned_repos/*
 cache/*
+src/__pycache__
+src/fetcher/__pycache__
+src/ast_generator/__pycache__
+src/chunker/__pycache__
