@@ -1,6 +1,7 @@
 import pygit2
 from typing import List
 import logging
+import os
 
 class GitHandler:
     def __init__(self):
@@ -8,9 +9,14 @@ class GitHandler:
     
     def clone_repository(self, url: str, path: str) -> pygit2.Repository:
         try:
-            if pygit2.Repository(path):
-                self.logger.info(f"Repository already exists at path: {path}")
-                return pygit2.Repository(path)
+            if os.path.exists(path):
+                try:
+                    repo = pygit2.Repository(path)
+                    self.logger.info(f"Repository already exists at path: {path}")
+                    return repo
+                except pygit2.GitError:
+                    # Directory exists but is not a git repository
+                    self.logger.info(f"Directory exists but is not a git repository: {path}")
             
             repo = pygit2.clone_repository(url, path)
             return repo

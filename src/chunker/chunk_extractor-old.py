@@ -48,9 +48,7 @@ class ChunkExtractor:
         #     if not os.path.exists(so_file):
         #         Language.build_library(so_file, [repo_dir])
 
-        # self.languages = {language: Language(os.path.join(build_dir, f"{language}.so"), language) for language in self.ALL_LANGUAGES}
-        
-        
+        # self.languages = {language: Language(os.path.join(build_dir, f"{language}.so"), language) for language in self.ALL_LANGUAGES}   
 
     def extract_chunks(self, file_path:str, language:str) -> List[ChunkNode]:
         if language not in self.languages:

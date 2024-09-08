@@ -1,4 +1,4 @@
-from repo_ast import processDirectory
+from .repo_ast import processDirectory
 import os
 
 if __name__ == "__main__":

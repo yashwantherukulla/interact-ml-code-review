@@ -30,8 +30,7 @@ def processDirectory(repoPath):
             filePath = os.path.join(root, file)
             language = detectLanguage(filePath)
             if language == 'unknown':
-                print(f"Unknown language for file: {filePath}")
-                return None
+                continue
             ast = generateAst(filePath, language)
             astDict = nodeToDict(ast.root_node)
 
