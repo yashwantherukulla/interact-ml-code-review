@@ -1,4 +1,4 @@
-from .repo_ast import processDirectory, nodeToDict
-from .ast_generator import generateAst, detectLanguage
+from .repo_ast import RepoAst
+from .ast_generator import AstGenerator
 
-__all__ = ["processDirectory"]
+__all__ = [RepoAst, AstGenerator]
