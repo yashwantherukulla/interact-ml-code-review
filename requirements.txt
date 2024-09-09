@@ -18,3 +18,4 @@ python-magic==0.4.27
 six==1.16.0
 tree-sitter==0.21.3
 tree-sitter-languages==1.10.2
+llama_index==0.10.62
