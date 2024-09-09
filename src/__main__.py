@@ -11,13 +11,15 @@ def fetch_repository(url: str, base_path: str) -> str:
 
 if __name__ == "__main__":
     cloneRepoPath = "./cloned_repos"
+
+    #repo to clone here
     url = "https://github.com/woaitsAryan/regit"
-    base_path = "./cloned_repos"
+
     chunk_extractor = ChunkExtractor2()
     code_analyser = CodeAnalyser()
     git_handler = GitHandler()
     repo_manager = RepositoryManager(git_handler)
-    fetch_repository(url, base_path)
+    fetch_repository(url, cloneRepoPath)
     # repo_manager.complete_cleanup()
     chunk_extractor.processRepos(cloneRepoPath)
     code_analyser.processRepos(cloneRepoPath)
