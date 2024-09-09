@@ -1,7 +1,7 @@
 import os
 import json
-from llama_index.core import SimpleDirectoryReader, Document
-from llama_index.core.node_parser import SimpleNodeParser
+from llama_index.core import SimpleDirectoryReader
+from llama_index.core.node_parser import SentenceSplitter
 from .languages import languageExtensions
 
 def detectLanguage(filePath):
@@ -37,7 +37,7 @@ def processFile(filePath, chunkFolder, mapping):
             return
         reader = SimpleDirectoryReader(input_files=[filePath])
         documents = reader.load_data()
-        parser = SimpleNodeParser.from_defaults()
+        parser = SentenceSplitter.from_defaults(chunk_size=20000, chunk_overlap=500)
         nodes = parser.get_nodes_from_documents(documents)
         
         relativePath = os.path.relpath(filePath, "cloned_repos")
