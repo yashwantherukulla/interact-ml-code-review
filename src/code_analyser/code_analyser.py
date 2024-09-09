@@ -1,7 +1,7 @@
 from groq import Groq
 import instructor
 
-from code_file_eval_model import CodeReviewModel
+from .code_file_eval_model import CodeReviewModel
 
 def get_code(file_path:str):
     with open(file_path, 'r') as f:
