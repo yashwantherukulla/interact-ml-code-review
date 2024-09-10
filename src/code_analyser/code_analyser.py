@@ -76,7 +76,7 @@ class CodeAnalyser:
             filePath = os.path.join(chunkFolderPath, file)
             if os.path.isfile(filePath):
                 self.processFile(filePath, outputFolder, mapping)
-            time.sleep(0.5)
+            time.sleep(0.75)
 
     def processFile(self, filePath, outputFolder, mapping):
         try:
