@@ -3,7 +3,7 @@ import os
 from typing import Dict, List, Optional, Tuple
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from .models import ChunkNode, ChunkGraph, ChunkType
+from ..chunker.models import ChunkNode, ChunkGraph, ChunkType
 from ..ast_generator.ast_generator import AstGenerator
 from ..ast_generator.repo_ast import RepoAst
 
