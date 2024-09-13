@@ -7,7 +7,7 @@ from .fetcher.repository_manager import RepositoryManager
 def fetch_repository(url: str, base_path: str) -> str:
     git_handler = GitHandler()
     repo_manager = RepositoryManager(git_handler)
-
+    
     repo_manager.clone_repository(url, base_path)
 
 if __name__ == "__main__":
@@ -20,7 +20,8 @@ if __name__ == "__main__":
     code_analyser = CodeAnalyser()
     git_handler = GitHandler()
     repo_manager = RepositoryManager(git_handler)
+
     fetch_repository(url, cloneRepoPath)
-    # repo_manager.complete_cleanup()
+    repo_manager.complete_cleanup()
     chunk_extractor.processRepos(cloneRepoPath)
     code_analyser.processRepos(cloneRepoPath)
