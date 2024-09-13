@@ -3,6 +3,7 @@ from .code_analyser.code_analyser import CodeAnalyser
 from .fetcher.git_handler import GitHandler
 from .fetcher.repository_manager import RepositoryManager
 
+
 def fetch_repository(url: str, base_path: str) -> str:
     git_handler = GitHandler()
     repo_manager = RepositoryManager(git_handler)
@@ -11,9 +12,9 @@ def fetch_repository(url: str, base_path: str) -> str:
 
 if __name__ == "__main__":
     cloneRepoPath = "./cloned_repos"
-
+    
     #repo to clone here
-    url = "https://github.com/woaitsAryan/regit"
+    url = "https://github.com/kiwi0fruit/ipynb-py-convert.git"
 
     chunk_extractor = ChunkExtractor2()
     code_analyser = CodeAnalyser()

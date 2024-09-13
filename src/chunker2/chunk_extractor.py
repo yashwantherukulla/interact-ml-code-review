@@ -8,10 +8,10 @@ import logging
 class ChunkExtractor2:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-
+        
     def detectLanguage(self, filePath):
-            extension = os.path.splitext(filePath)[1][1:].lower()
-            return languages.languageExtensions.get(extension, 'unknown')
+        extension = os.path.splitext(filePath)[1][1:].lower()
+        return languages.languageExtensions.get(extension, 'unknown')
 
     def processRepos(self, root_folder):
         mapping = {}

@@ -26,13 +26,8 @@ class CodeAnalyser:
         Guidelines:\n
         1. Scores should be integers from 1 to 10, where 1 is poor and 10 is excellent.\n
         2. The overall_score should be between 0 and 100.\n
-        3. Provide concise, relevant remarks for each category explaining the score.\n
-        4. When giving remarks, refer to the point of weakness or strength if any.\n
-        4. For lists (strengths, weaknesses, improvement_suggestions), provide at least three items.\n
-        5. Base your review solely on the code provided, making reasonable inferences about its context and purpose.\n
-        6. Consider the hackathon context in your assessment, particularly for innovation, project impact, and technical complexity.\n
-        7. In the final_remarks, summarize the key points of your review.\n
-        8. In the recommendation, suggest whether the project should be considered for awards or further development.\n\n
+        3. Base your review solely on the code provided, making reasonable inferences about its context and purpose.\n
+        4. Consider the hackathon context in your assessment, particularly for innovation, project impact, and technical complexity.\n
         Analyze the code thoroughly and provide a balanced, insightful review that will be valuable for the judges to evaluate the team better.\n
         NOTE: THIS IS MEANT TO VIEWED BY THE JUDGES OF THE HACKATHON, MAKE IT SUCH THAT, IT ASSISTS THEM IN THEIR EVALUATION.\n
         """
