@@ -3,11 +3,11 @@ import json
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SentenceSplitter
 from ..ast_generator import languages
-import logging
+import logger
 
 class ChunkExtractor2:
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger.setupLogger()
         
     def detectLanguage(self, filePath):
         extension = os.path.splitext(filePath)[1][1:].lower()

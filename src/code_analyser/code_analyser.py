@@ -5,11 +5,11 @@ import json
 import time
 from .code_file_eval_model import CodeReviewModel
 from collections import defaultdict
-import logging
+import logger
 
 class CodeAnalyser:
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger.setupLogger()
 
     def get_code(self, file_path:str):
         with open(file_path, 'r') as f:

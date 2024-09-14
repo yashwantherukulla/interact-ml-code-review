@@ -1,19 +1,18 @@
 import pygit2
 from typing import List
-import logging
+import logger
 import os
 import shutil
 
 class GitHandler:
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger.setupLogger()
     
     def clone_repository(self, url: str, path: str) -> pygit2.Repository:
         try:
             if os.path.exists(path):
                 if os.path.exists(os.path.join(path, '.git')):
                     self.logger.info(f"Repository already exists at path: {path}")
-                    return pygit2.Repository(path)
                 else:
                     self.logger.warning(f"Directory exists but is not a Git repository: {path}")
                     shutil.rmtree(path)

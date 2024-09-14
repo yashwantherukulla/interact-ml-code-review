@@ -2,7 +2,7 @@ from .chunker2.chunk_extractor import ChunkExtractor2
 from .code_analyser.code_analyser import CodeAnalyser
 from .fetcher.git_handler import GitHandler
 from .fetcher.repository_manager import RepositoryManager
-import logging
+import logger
 
 def fetch_repository(url: str, base_path: str) -> str:
     git_handler = GitHandler()
@@ -10,12 +10,13 @@ def fetch_repository(url: str, base_path: str) -> str:
     
     repo_manager.clone_repository(url, base_path)
 
-def main(repos):
-    logger = logging.getLogger(__name__)
+def codeReviewer(repos):
+    logs = logger.setupLogger()
     if repos != []:
-        repos = repos[1:len(repos)-1].split(' ')
+        repos = eval(repos)
+        print(repos)
     else:
-        logger.info("Please provide a repository URL")
+        logs.info("Please provide a repository URL")
 
     cloneRepoPath = "./cloned_repos"
 
