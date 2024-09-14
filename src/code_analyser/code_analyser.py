@@ -52,16 +52,15 @@ class CodeAnalyser:
         return output
 
     def processRepos(self, root_folder):
-        mapping = {}
-        
         for repoName in os.listdir(root_folder):
+            mapping = {}
             repoPath = os.path.join(root_folder, repoName)
             if os.path.isdir(repoPath):
                 self.processRepo(repoPath, mapping)
                 self.finalScores(repoPath)
 
-        with open(os.path.join(repoPath, "file_output_mapping.json"), "w") as f:
-            json.dump(mapping, f, indent=2)
+            with open(os.path.join(repoPath, "file_output_mapping.json"), "w") as f:
+                json.dump(mapping, f, indent=2)
 
     def processRepo(self, repoPath, mapping):
         outputFolder = os.path.join(repoPath, "output_data")

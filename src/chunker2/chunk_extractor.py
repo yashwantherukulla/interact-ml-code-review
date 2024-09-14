@@ -13,16 +13,15 @@ class ChunkExtractor2:
         extension = os.path.splitext(filePath)[1][1:].lower()
         return languages.languageExtensions.get(extension, 'unknown')
 
-    def processRepos(self, root_folder):
-        mapping = {}
-        
+    def processRepos(self, root_folder):        
         for repoName in os.listdir(root_folder):
+            mapping = {}
             repoPath = os.path.join(root_folder, repoName)
             if os.path.isdir(repoPath):
                 self.processRepo(repoPath, mapping)
 
-        with open(os.path.join(repoPath, "file_chunk_mapping.json"), "w") as f:
-            json.dump(mapping, f, indent=2)
+            with open(os.path.join(repoPath, "file_chunk_mapping.json"), "w") as f:
+                json.dump(mapping, f, indent=2)
 
     def processRepo(self, repoPath, mapping):
         chunkFolder = os.path.join(repoPath, "chunk_data")
