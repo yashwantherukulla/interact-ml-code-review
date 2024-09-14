@@ -13,7 +13,7 @@ class GitHandler:
             if os.path.exists(path):
                 if os.path.exists(os.path.join(path, '.git')):
                     self.logger.info(f"Repository already exists at path: {path}")
-                    # return pygit2.Repository(path)
+                    return pygit2.Repository(path)
                 else:
                     self.logger.warning(f"Directory exists but is not a Git repository: {path}")
                     shutil.rmtree(path)
