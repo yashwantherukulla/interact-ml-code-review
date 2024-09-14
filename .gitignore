@@ -2,4 +2,3 @@ venv
 cloned_repos/*
 cache/*
 **/__pycache__/
-.vscode
