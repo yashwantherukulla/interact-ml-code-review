@@ -7,6 +7,9 @@ from .code_file_eval_model import CodeReviewModel
 from collections import defaultdict
 import logger
 import subprocess
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class CodeAnalyser:
     def __init__(self):
@@ -33,7 +36,7 @@ class CodeAnalyser:
         NOTE: THIS IS MEANT TO VIEWED BY THE JUDGES OF THE HACKATHON, MAKE IT SUCH THAT, IT ASSISTS THEM IN THEIR EVALUATION.\n
         """
 
-        client = Groq(api_key="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")
+        client = Groq(os.getenv("API_KEY"))
         client = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
 
         output = client.chat.completions.create(
@@ -66,11 +69,7 @@ class CodeAnalyser:
             with open(os.path.join(repoPath, "file_output_mapping.json"), "w") as f:
                 json.dump(mapping, f, indent=2)
             
-        output_file = os.path.join(root_folder, "scores_summary.json")
-        with open(output_file, 'w') as file:
-            json.dump(scores, file, indent=2)
-
-        self.logger.info(f"Scores summary saved to: {output_file}")
+        return scores
 
     def processRepo(self, repoPath, mapping):
         outputFolder = os.path.join(repoPath, "output_data")
