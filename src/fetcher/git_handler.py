@@ -1,7 +1,7 @@
 import pygit2
-import logger
 import os
 import shutil
+from ... import logger
 
 
 class GitHandler:

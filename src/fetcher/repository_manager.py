@@ -27,13 +27,13 @@ class RepositoryManager:
 
         except pygit2.GitError as e:
             self.logger.error(f"GitError while cloning repository: {e}")
-            raise
+            raise e
         except OSError as e:
             self.logger.error(f"OSError while cloning repository: {e}")
-            raise
+            raise e
         except Exception as e:
             self.logger.error(f"Unexpected error while cloning repository: {e}")
-            raise
+            raise e
 
     def update_repository(self, url: str) -> str:
         if url not in self.repos:

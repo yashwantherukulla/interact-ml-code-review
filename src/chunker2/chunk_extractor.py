@@ -3,7 +3,7 @@ import json
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SentenceSplitter
 from ..ast_generator import languages
-import logger
+from ... import logger
 
 
 class ChunkExtractor2:
