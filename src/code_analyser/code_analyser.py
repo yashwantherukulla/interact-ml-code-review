@@ -111,18 +111,13 @@ class CodeAnalyser:
                     if isinstance(value, dict) and 'score' in value:
                         score_aggregation[key] += value['score']
             files += 1
-
+        
         for category in score_aggregation:
             score_aggregation[category] = round(score_aggregation[category]/files, 1)
 
-        githubUrl = self.getGithubUrl(repoPath)
-        return {
-            "repo_link": githubUrl,
-            "scores_by_category": dict(score_aggregation)
-        }
+        score_aggregation["repo_link"] = self.getGithubUrl(repoPath)
+        return score_aggregation
 
-        
-    
     def getGithubUrl(self, repoPath):
         try:
             result = subprocess.run(['git', 'config', '--get', 'remote.origin.url'], 
