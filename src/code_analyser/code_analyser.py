@@ -6,6 +6,7 @@ import time
 from .code_file_eval_model import CodeReviewModel
 from collections import defaultdict
 import logger
+import subprocess
 
 class CodeAnalyser:
     def __init__(self):
@@ -57,7 +58,8 @@ class CodeAnalyser:
             repoPath = os.path.join(root_folder, repoName)
             if os.path.isdir(repoPath):
                 self.processRepo(repoPath, mapping)
-                self.finalScores(repoPath)
+            
+            self.finalScores(repoPath)
 
             with open(os.path.join(repoPath, "file_output_mapping.json"), "w") as f:
                 json.dump(mapping, f, indent=2)
@@ -103,9 +105,11 @@ class CodeAnalyser:
             files += 1
 
         for category in score_aggregation:
-            score_aggregation[category] = round(score_aggregation[category]/files)
+            score_aggregation[category] = round(score_aggregation[category]/files, 1)
 
+        githubUrl = self.getGithubUrl(repoPath)
         output_data = {
+            "repo_link": githubUrl,
             "scores_by_category": dict(score_aggregation)
         }
 
@@ -114,3 +118,15 @@ class CodeAnalyser:
             json.dump(output_data, file, indent=2)
 
         self.logger.info(f"Scores summary saved to: {output_file}")
+    
+    def getGithubUrl(self, repoPath):
+        try:
+            result = subprocess.run(['git', 'config', '--get', 'remote.origin.url'], 
+                                    cwd=repoPath, 
+                                    capture_output=True, 
+                                    text=True, 
+                                    check=True)
+            return result.stdout.strip()
+        except subprocess.CalledProcessError:
+            self.logger.warning(f"Unable to get GitHub URL for repo: {repoPath}")
+            return "Unknown Repository"
