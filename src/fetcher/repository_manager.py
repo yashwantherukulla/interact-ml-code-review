@@ -55,15 +55,4 @@ class RepositoryManager:
             raise ValueError(f"Repository not found at path: {self.repos[url]}")
         
         return self.repos[url]
-    
-    def complete_cleanup(self) -> None:
-        for url, path in self.repos.items():
-            try:    
-                shutil.rmtree(path)
-                self.logger.info(f"Cleaned up repository: {url} | at path: {path}")
-            except Exception as e:
-                self.logger.error(f"Error while cleaning up repository: {e}")
-                raise e
-            
-        self.repos.clear()
                 
