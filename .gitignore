@@ -2,3 +2,4 @@ venv
 cloned_repos/*
 cache/*
 **/__pycache__/
+logs.log
