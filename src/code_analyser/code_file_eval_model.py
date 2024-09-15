@@ -1,8 +1,9 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+
 
 class CodeReviewCategory(BaseModel):
     score: int = Field(..., ge=1, le=10, description="Score from 1 to 10")
+
 
 class CodeReviewModel(BaseModel):
     # Code Quality

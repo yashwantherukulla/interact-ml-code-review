@@ -5,15 +5,16 @@ from llama_index.core.node_parser import SentenceSplitter
 from ..ast_generator import languages
 import logger
 
+
 class ChunkExtractor2:
     def __init__(self):
         self.logger = logger.setupLogger()
-        
+
     def detectLanguage(self, filePath):
         extension = os.path.splitext(filePath)[1][1:].lower()
-        return languages.languageExtensions.get(extension, 'unknown')
+        return languages.languageExtensions.get(extension, "unknown")
 
-    def processRepos(self, root_folder):        
+    def processRepos(self, root_folder):
         for repoName in os.listdir(root_folder):
             mapping = {}
             repoPath = os.path.join(root_folder, repoName)
@@ -26,7 +27,7 @@ class ChunkExtractor2:
     def processRepo(self, repoPath, mapping):
         chunkFolder = os.path.join(repoPath, "chunk_data")
         os.makedirs(chunkFolder, exist_ok=True)
-        
+
         for root, _, files in os.walk(repoPath):
             for file in files:
                 filePath = os.path.join(root, file)
@@ -36,22 +37,22 @@ class ChunkExtractor2:
     def processFile(self, filePath, chunkFolder, mapping):
         try:
             language = self.detectLanguage(filePath)
-            if language == 'unknown':
+            if language == "unknown":
                 self.logger.info(f"Skipping file with unknown language: {filePath}")
                 return
             reader = SimpleDirectoryReader(input_files=[filePath])
             documents = reader.load_data()
             parser = SentenceSplitter.from_defaults(chunk_size=20000, chunk_overlap=500)
             nodes = parser.get_nodes_from_documents(documents)
-            
+
             relativePath = os.path.relpath(filePath, "cloned_repos")
             chunkFileName = relativePath.replace(os.path.sep, "_") + "_chunks.txt"
             chunkFilePath = os.path.join(chunkFolder, chunkFileName)
-            
+
             with open(chunkFilePath, "w", encoding="utf-8") as f:
                 for node in nodes:
                     f.write(f"Chunk: {node.text}\n\n")
-            
+
             mapping[filePath] = chunkFilePath
         except Exception as e:
             self.logger.info(f"Error processing file {filePath}: {str(e)}")
