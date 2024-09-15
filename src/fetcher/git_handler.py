@@ -16,9 +16,9 @@ class GitHandler:
                 else:
                     self.logger.warning(f"Directory exists but is not a Git repository: {path}")
                     shutil.rmtree(path)
-            
-            self.logger.info(f"Cloning repository to: {path}")
-            pygit2.clone_repository(url, path)
+            else:
+                self.logger.info(f"Cloning repository to: {path}")
+                pygit2.clone_repository(url, path)
             
         except pygit2.GitError as e:
             self.logger.error(f"Error while cloning repository: {e}")
