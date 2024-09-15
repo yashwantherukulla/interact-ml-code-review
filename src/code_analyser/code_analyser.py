@@ -53,16 +53,24 @@ class CodeAnalyser:
         return output
 
     def processRepos(self, root_folder):
+        scores = []
         for repoName in os.listdir(root_folder):
             mapping = {}
             repoPath = os.path.join(root_folder, repoName)
             if os.path.isdir(repoPath):
                 self.processRepo(repoPath, mapping)
+                score_summary = self.finalScores(repoPath)
             
-            self.finalScores(repoPath)
+            scores.append(score_summary)
 
             with open(os.path.join(repoPath, "file_output_mapping.json"), "w") as f:
                 json.dump(mapping, f, indent=2)
+            
+        output_file = os.path.join(root_folder, "scores_summary.json")
+        with open(output_file, 'w') as file:
+            json.dump(scores, file, indent=2)
+
+        self.logger.info(f"Scores summary saved to: {output_file}")
 
     def processRepo(self, repoPath, mapping):
         outputFolder = os.path.join(repoPath, "output_data")
@@ -108,16 +116,12 @@ class CodeAnalyser:
             score_aggregation[category] = round(score_aggregation[category]/files, 1)
 
         githubUrl = self.getGithubUrl(repoPath)
-        output_data = {
+        return {
             "repo_link": githubUrl,
             "scores_by_category": dict(score_aggregation)
         }
 
-        output_file = os.path.join(repoPath, "scores_summary.json")
-        with open(output_file, 'w') as file:
-            json.dump(output_data, file, indent=2)
-
-        self.logger.info(f"Scores summary saved to: {output_file}")
+        
     
     def getGithubUrl(self, repoPath):
         try:
