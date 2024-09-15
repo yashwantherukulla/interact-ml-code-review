@@ -14,7 +14,6 @@ def codeReviewer(repos):
     logs = logger.setupLogger()
     if repos != []:
         repos = eval(repos)
-        print(repos)
     else:
         logs.info("Please provide a repository URL")
 
