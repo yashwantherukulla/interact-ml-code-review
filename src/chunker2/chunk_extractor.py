@@ -28,7 +28,11 @@ class ChunkExtractor2:
         chunkFolder = os.path.join(repoPath, "chunk_data")
         os.makedirs(chunkFolder, exist_ok=True)
 
-        for root, _, files in os.walk(repoPath):
+        for root, dirs, files in os.walk(repoPath):
+            dirs[:] = [
+                d for d in dirs if not d.startswith(".")
+            ]  # Skip directories starting with a dot
+
             for file in files:
                 filePath = os.path.join(root, file)
                 if os.path.isfile(filePath):

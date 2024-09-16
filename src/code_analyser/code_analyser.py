@@ -41,7 +41,7 @@ class CodeAnalyser:
         client = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
 
         output = client.chat.completions.create(
-            model="llama-3.1-70b-versatile",  # "mixtral-8x7b-32768",
+            model="llama-3.1-70b-versatile",  # llama3-8b-8192  "mixtral-8x7b-32768",
             messages=[
                 {"role": "system", "content": sys_prompt},
                 {
