@@ -8,6 +8,8 @@ from collections import defaultdict
 from ... import logger
 import subprocess
 from dotenv import load_dotenv
+import concurrent.futures
+import random
 
 load_dotenv()
 
@@ -37,11 +39,14 @@ class CodeAnalyser:
         NOTE: THIS IS MEANT TO VIEWED BY THE JUDGES OF THE HACKATHON, MAKE IT SUCH THAT, IT ASSISTS THEM IN THEIR EVALUATION.\n
         """
 
-        client = Groq(api_key=os.getenv("API_KEY"))
+        keys = os.getenv("API_KEYS")
+        random_key = random.choice(keys.split(","))
+
+        client = Groq(api_key=random_key)
         client = instructor.from_groq(client, mode=instructor.Mode.TOOLS)
 
         output = client.chat.completions.create(
-            model="llama-3.1-70b-versatile",  # llama3-8b-8192  "mixtral-8x7b-32768",
+            model="llama3-8b-8192",  # llama-3.1-70b-versatile  "mixtral-8x7b-32768",
             messages=[
                 {"role": "system", "content": sys_prompt},
                 {
@@ -55,17 +60,38 @@ class CodeAnalyser:
 
     def processAllRepos(self, root_folder):
         scores = []
-        for repoName in os.listdir(root_folder):
+
+        def process_single_repo(repoName):
             mapping = {}
             repoPath = os.path.join(root_folder, repoName)
+            score_summary = None
+
             if os.path.isdir(repoPath):
                 self.processRepo(repoPath, mapping)
                 score_summary = self.finalScores(repoPath)
 
-            scores.append(score_summary)
+                with open(os.path.join(repoPath, "file_output_mapping.json"), "w") as f:
+                    json.dump(mapping, f, indent=2)
 
-            with open(os.path.join(repoPath, "file_output_mapping.json"), "w") as f:
-                json.dump(mapping, f, indent=2)
+            return score_summary
+
+        repo_names = [
+            repoName
+            for repoName in os.listdir(root_folder)
+            if os.path.isdir(os.path.join(root_folder, repoName))
+        ]
+
+        # Use ThreadPoolExecutor to parallelize processing of repositories
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Submit tasks for each repository and collect the results
+            futures = [
+                executor.submit(process_single_repo, repoName)
+                for repoName in repo_names
+            ]
+            for future in concurrent.futures.as_completed(futures):
+                score_summary = future.result()
+                if score_summary is not None:
+                    scores.append(score_summary)
 
         return scores
 
@@ -73,11 +99,24 @@ class CodeAnalyser:
         outputFolder = os.path.join(repoPath, "output_data")
         os.makedirs(outputFolder, exist_ok=True)
         chunkFolderPath = os.path.join(repoPath, "chunk_data")
-        for file in os.listdir(chunkFolderPath):
-            filePath = os.path.join(chunkFolderPath, file)
-            if os.path.isfile(filePath):
-                self.processFile(filePath, outputFolder, mapping)
-            time.sleep(0.75)
+
+        file_paths = [
+            os.path.join(chunkFolderPath, file)
+            for file in os.listdir(chunkFolderPath)
+            if os.path.isfile(os.path.join(chunkFolderPath, file))
+        ]
+
+        def process_single_file(filePath):
+            self.processFile(filePath, outputFolder, mapping)
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Submit all the files to be processed in parallel
+            futures = [
+                executor.submit(process_single_file, filePath)
+                for filePath in file_paths
+            ]
+            # Wait for all tasks to complete
+            concurrent.futures.wait(futures)
 
     def processFile(self, filePath, outputFolder, mapping):
         try:

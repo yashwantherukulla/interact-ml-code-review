@@ -4,6 +4,7 @@ from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SentenceSplitter
 from ..ast_generator import languages
 from ... import logger
+import concurrent.futures
 
 
 class ChunkExtractor2:
@@ -15,7 +16,7 @@ class ChunkExtractor2:
         return languages.languageExtensions.get(extension, "unknown")
 
     def processRepos(self, root_folder):
-        for repoName in os.listdir(root_folder):
+        def process_single_repo(repoName):
             mapping = {}
             repoPath = os.path.join(root_folder, repoName)
             if os.path.isdir(repoPath):
@@ -23,6 +24,21 @@ class ChunkExtractor2:
 
             with open(os.path.join(repoPath, "file_chunk_mapping.json"), "w") as f:
                 json.dump(mapping, f, indent=2)
+
+        repo_names = [
+            repoName
+            for repoName in os.listdir(root_folder)
+            if os.path.isdir(os.path.join(root_folder, repoName))
+        ]
+
+        # Use ThreadPoolExecutor to parallelize processing of repositories
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Submit tasks for each repository to process in parallel
+            futures = [
+                executor.submit(process_single_repo, repoName)
+                for repoName in repo_names
+            ]
+            concurrent.futures.wait(futures)
 
     def processRepo(self, repoPath, mapping):
         chunkFolder = os.path.join(repoPath, "chunk_data")
