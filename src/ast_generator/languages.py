@@ -45,5 +45,7 @@ languageExtensions = {
         'rst': 'restructuredtext (rst)',
         'hcl': 'hcl',
         'f90': 'fortran',
-        'f': 'fixed-form fortran'
+        'f': 'fixed-form fortran',
+        'tsx': 'typescript react',
+        'jsx': 'javascript react'
 }
